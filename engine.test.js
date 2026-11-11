@@ -1,0 +1,5 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {games,generate,draw} from './engine.js';
+test('all game, mode and difficulty combinations produce playable objectives',()=>{for(const [game,g] of Object.entries(games))for(const mode of Object.keys(g.modes))for(const difficulty of ['easy','normal','hard'])for(let i=0;i<100;i++){const c=generate(game,mode,difficulty);assert.ok(c.title.length>10);assert.ok(c.rules.length>=2);assert.equal(c.game,game);assert.equal(c.mode,mode);if(game==='elden')assert.ok(!c.rules.join().includes('contratações'));}});
+test('recent challenge is avoided when another combination is drawn',()=>{const first=generate('fc','manager','normal',()=>0);let calls=0;const next=draw('fc','manager','normal',[first.signature],()=>calls++<4?0:.9);assert.notEqual(next.signature,first.signature);});
+test('exhausted sampling is bounded and reported',()=>{const c=generate('hunter','photo','normal',()=>0);assert.equal(draw('hunter','photo','normal',[c.signature],()=>0).repeated,true);});
+test('reject invalid selections',()=>{assert.throws(()=>generate('unknown','manager'));assert.throws(()=>generate('fc','boss'));});
